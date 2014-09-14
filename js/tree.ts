@@ -34,8 +34,8 @@ module JsTree {
       this.nameInput = this.view.find('.name-input');
 
       this.toggleChildrenElement.on('click', (e) => {self.toggleChildren()});
-
       this.toggleChildren(this.node.showChildren);
+      this.view.find('.delete-node').on('click', (e) => {self.deleteNode();});
 
       return this.getChildrenContainer();
     }

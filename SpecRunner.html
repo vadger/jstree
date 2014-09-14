@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Jasmine Spec Runner v2.0.3</title>
+
+  <link rel="shortcut icon" type="image/png" href="jasmine/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="jasmine/jasmine.css">
+
+  <script type="text/javascript" src="jasmine/jasmine.js"></script>
+  <script type="text/javascript" src="jasmine/jasmine-html.js"></script>
+  <script type="text/javascript" src="jasmine/boot.js"></script>
+
+  <script src="lib/jquery-2.1.1.min.js"></script>
+
+  <!-- include source files here... -->
+  <script type="text/javascript" src="js/tree.js"></script>
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="spec/TreeSpec.js"></script>
+
+</head>
+
+<body>
+  <script type="text/html" id="node-template">
+    <li class="list-group-item">
+      <span class="glyphicon toggle-children"></span>
+      <span class="edit-mode-hidden name"></span>
+      <input type="text" class="edit-mode-visible name-input">
+      <span class="glyphicon glyphicon-trash edit-mode-hidden delete-node"></span>
+      <span class="glyphicon glyphicon-pencil edit-mode-hidden edit-name"></span>
+      <span class="glyphicon glyphicon-plus-sign edit-mode-hidden add-child"></span>
+      <span class="glyphicon glyphicon-ok edit-mode-visible save-name"></span>
+      <ul class="list-group children hidden"></ul>
+    </li>
+  </script>
+</body>
+</html>

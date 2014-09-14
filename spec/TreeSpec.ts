@@ -57,5 +57,20 @@ module JsTree {
       expect(parentNode.children.indexOf(node)).toBe(-1);
       expect(parentViewContainer.find('.list-group-item').length).toBe(0);
     });
+
+    it(' allows editing node name', () => {
+      expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(false);
+
+      treeNodeView.editName();
+      expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(true);
+      expect(parentViewContainer.find(' > li > .name-input').val()).toBe('nodeName');
+      parentViewContainer.find(' > li > .name-input').val('new name');
+
+      treeNodeView.saveName();
+
+      expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(false);
+      expect(parentViewContainer.find('.list-group-item .name').text()).toBe('new name');
+      expect(node.name).toBe('new name');
+    });
   });
 }

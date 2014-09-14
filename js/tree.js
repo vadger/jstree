@@ -20,8 +20,16 @@ var JsTree;
             this.toggleChildrenElement.on('click', function (e) {
                 self.toggleChildren();
             });
-
             this.toggleChildren(this.node.showChildren);
+            this.view.find('.delete-node').on('click', function (e) {
+                self.deleteNode();
+            });
+            this.view.find('.edit-name').on('click', function (e) {
+                self.editName();
+            });
+            this.view.find('.save-name').on('click', function (e) {
+                self.saveName();
+            });
 
             return this.getChildrenContainer();
         };
@@ -46,6 +54,17 @@ var JsTree;
             var index = this.parentNode.children.indexOf(this.node);
             if (index != -1)
                 this.parentNode.children.splice(index, 1);
+        };
+
+        TreeNodeView.prototype.editName = function () {
+            this.view.addClass('edit-mode');
+            this.nameInput.val(this.nameElement.text()).focus();
+        };
+
+        TreeNodeView.prototype.saveName = function () {
+            this.view.removeClass('edit-mode');
+            this.nameElement.text(this.nameInput.val());
+            this.node.name = this.nameInput.val();
         };
         return TreeNodeView;
     })();

@@ -10,7 +10,7 @@ module JsTree {
 
 
   beforeEach(() => {
-    node = {name: 'nodeName', showChildren: false, children: []};
+    node = {name: 'nodeName', showChildren: false, children: [{name: 'bar', showChildren: false, children: []}]};
     parentNode = {name: 'parentNodeName', showChildren: false, children: [
       {name: 'foo', showChildren: false, children: []},
       node,
@@ -48,6 +48,12 @@ module JsTree {
       treeNodeView.toggleChildren(false);
       expect(childrenContainer.hasClass('hidden')).toBe(true);
       expect(parentViewContainer.find('li > .toggle-children.glyphicon-plus').length).toBe(1);
+    });
+
+    it(' without any child does not show children toggle options', () => {
+      node.children = [];
+      treeNodeView.toggleChildren(true);
+      expect(parentViewContainer.find('li > .toggle-children').hasClass('hidden')).toBe(true);
     });
 
     it(' allows to delete itself from parent model and view', () => {

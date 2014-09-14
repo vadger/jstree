@@ -47,8 +47,7 @@ var JsTree;
 
         TreeNodeView.prototype.toggleChildren = function (showChildren) {
             this.node.showChildren = showChildren != null ? showChildren : !this.node.showChildren;
-
-            this.toggleChildrenElement.toggleClass('glyphicon-plus', !this.node.showChildren).toggleClass('glyphicon-minus', this.node.showChildren);
+            this.toggleChildrenElement.toggleClass('glyphicon-plus', !this.node.showChildren).toggleClass('glyphicon-minus', this.node.showChildren).toggleClass('hidden', this.node.children.length == 0);
             this.view.find('> .children').toggleClass('hidden', !this.node.showChildren);
         };
 

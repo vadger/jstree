@@ -56,7 +56,7 @@ module JsTree {
       this.toggleChildrenElement
         .toggleClass('glyphicon-plus', !this.node.showChildren)
         .toggleClass('glyphicon-minus', this.node.showChildren)
-        .toggleClass('hidden', this.node.children.length == 0);
+        .toggleClass('invisible', this.node.children.length == 0);
       this.view.find('> .children').toggleClass('hidden', !this.node.showChildren);
     }
 

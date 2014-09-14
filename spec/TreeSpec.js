@@ -52,7 +52,7 @@ var JsTree;
         it(' without any child does not show children toggle options', function () {
             node.children = [];
             treeNodeView.toggleChildren(true);
-            expect(parentViewContainer.find('li > .toggle-children').hasClass('hidden')).toBe(true);
+            expect(parentViewContainer.find('li > .toggle-children').hasClass('invisible')).toBe(true);
         });
 
         it(' allows to delete itself from parent model and view', function () {

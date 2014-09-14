@@ -56,5 +56,11 @@ module JsTree {
         .toggleClass('glyphicon-minus', this.node.showChildren);
       this.view.find('> .children').toggleClass('hidden', !this.node.showChildren);
     }
+
+    deleteNode() {
+      this.view.remove();
+      var index = this.parentNode.children.indexOf(this.node);
+      if (index != -1) this.parentNode.children.splice(index, 1);
+    }
   }
 }

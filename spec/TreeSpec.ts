@@ -18,18 +18,17 @@ module JsTree {
     ]};
     treeNodeView = new JsTree.TreeNodeView(node, parentNode);
     parentViewContainer = $('<ul></ul>');
+    treeNodeView.render(parentViewContainer);
   });
 
   describe('Tree node view', () => {
 
     it(' renders itself to parent view container', () => {
-      treeNodeView.render(parentViewContainer);
       expect(parentViewContainer.find('.list-group-item').length).toBe(1);
       expect(parentViewContainer.find('.list-group-item .name').text()).toBe('nodeName');
     });
 
     it(' can toggle its children', () => {
-      treeNodeView.render(parentViewContainer);
       var childrenContainer = parentViewContainer.find('li > ul.children');
       expect(childrenContainer.hasClass('hidden')).toBe(true);
       expect(parentViewContainer.find('li > .toggle-children.glyphicon-plus').length).toBe(1);
@@ -49,6 +48,14 @@ module JsTree {
       treeNodeView.toggleChildren(false);
       expect(childrenContainer.hasClass('hidden')).toBe(true);
       expect(parentViewContainer.find('li > .toggle-children.glyphicon-plus').length).toBe(1);
+    });
+
+    it(' allows to delete itself from parent model and view', () => {
+      expect(parentNode.children.length).toBe(3);
+      treeNodeView.deleteNode();
+      expect(parentNode.children.length).toBe(2);
+      expect(parentNode.children.indexOf(node)).toBe(-1);
+      expect(parentViewContainer.find('.list-group-item').length).toBe(0);
     });
   });
 }

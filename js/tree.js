@@ -30,6 +30,9 @@ var JsTree;
             this.view.find('.save-name').on('click', function (e) {
                 self.saveName();
             });
+            this.view.find('.add-child').on('click', function (e) {
+                self.addChild();
+            });
 
             return this.getChildrenContainer();
         };
@@ -65,6 +68,15 @@ var JsTree;
             this.view.removeClass('edit-mode');
             this.nameElement.text(this.nameInput.val());
             this.node.name = this.nameInput.val();
+        };
+
+        TreeNodeView.prototype.addChild = function () {
+            var newNode = { name: '', showChildren: false, children: [] };
+            this.node.children.push(newNode);
+            var newView = new TreeNodeView(newNode, this.node);
+            newView.render(this.getChildrenContainer());
+            this.toggleChildren(true);
+            newView.editName();
         };
         return TreeNodeView;
     })();

@@ -72,5 +72,13 @@ module JsTree {
       expect(parentViewContainer.find('.list-group-item .name').text()).toBe('new name');
       expect(node.name).toBe('new name');
     });
+
+    it(' allows adding child to any node', () => {
+      expect(parentViewContainer.find('li > ul.children > li').length).toBe(0);
+      treeNodeView.addChild();
+      expect(parentViewContainer.find('li > ul.children > li').length).toBe(1);
+      expect(node.showChildren).toBe(true);
+      expect(parentViewContainer.find('li > ul.children > li').hasClass('edit-mode')).toBe(true);
+    });
   });
 }

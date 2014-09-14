@@ -38,6 +38,7 @@ module JsTree {
       this.view.find('.delete-node').on('click', (e) => {self.deleteNode();});
       this.view.find('.edit-name').on('click', (e) => {self.editName();});
       this.view.find('.save-name').on('click', (e) => {self.saveName();});
+      this.view.find('.add-child').on('click', (e) => {self.addChild()});
 
       return this.getChildrenContainer();
     }
@@ -74,6 +75,15 @@ module JsTree {
       this.view.removeClass('edit-mode');
       this.nameElement.text(this.nameInput.val());
       this.node.name = this.nameInput.val();
+    }
+
+    addChild() {
+      var newNode = {name: '', showChildren: false, children: []};
+      this.node.children.push(newNode);
+      var newView = new TreeNodeView(newNode, this.node);
+      newView.render(this.getChildrenContainer());
+      this.toggleChildren(true);
+      newView.editName();
     }
   }
 }

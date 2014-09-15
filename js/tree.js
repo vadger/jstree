@@ -130,4 +130,24 @@ var JsTree;
         return RecursiveTreeRenderer;
     })();
     JsTree.RecursiveTreeRenderer = RecursiveTreeRenderer;
+
+    var MainView = (function () {
+        function MainView(container) {
+            this.rootNode = { name: '', showChildren: true, children: [] };
+            this.container = container;
+        }
+        MainView.prototype.renderTree = function (rootNode) {
+            if (rootNode != null)
+                this.rootNode = rootNode;
+            new RecursiveTreeRenderer(this.container.html('')).renderTree(this.rootNode);
+        };
+
+        MainView.prototype.renderNodeRecursively = function (node, parent, container) {
+            for (var i = 0; i < node.children.length; i++) {
+                this.renderNodeRecursively(node.children[i], node, new TreeNodeView(node.children[i], node).render(container));
+            }
+        };
+        return MainView;
+    })();
+    JsTree.MainView = MainView;
 })(JsTree || (JsTree = {}));

@@ -1,0 +1,71 @@
+#root-node >.list-group .list-group-item {
+  border-width: 0 0;
+}
+#root-node .list-group-item li.list-group-item {
+  margin: 0 -15px;
+  padding-left: 30px;
+}
+
+#root-node .list-group-item li.list-group-item:last-child {
+  padding-bottom: 0;
+}
+
+#root-node .list-group {
+  margin:0; padding-bottom: 0;
+}
+
+#root-node .list-group-item {
+  padding-bottom: 1px;
+}
+
+.toggle-children {
+  padding-right: 5px;
+  cursor: pointer;
+}
+.delete-node {
+  float: right;
+  cursor: pointer;
+}
+.edit-name {
+  float: right;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+input.name-input {
+  border:none;
+  border-bottom:1px solid #757575;
+}
+
+input.name-input:focus {
+  outline: none;
+  border-bottom:1px solid #ff6514;
+}
+
+.edit-mode > .edit-mode-hidden {
+  display: none;
+}
+
+.edit-mode > .edit-mode-visible {
+  display: inline-block;
+}
+
+.name-input {
+  display: none;
+}
+
+.save-name {
+  float: right;
+  display: none;
+  cursor: pointer;
+}
+
+.add-child {
+  float: right;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.invisible {
+  visibility: hidden;
+}

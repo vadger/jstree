@@ -9,7 +9,7 @@ module JsTree {
 
   export class TreeNodeView {
 
-    private view:JQuery;
+    private viewBody:JQuery;
 
     private node:TreeNode;
     private parentNode:TreeNode;
@@ -23,28 +23,28 @@ module JsTree {
     }
 
     render(container:JQuery):JQuery {
-      var self = this;
+      var that = this;
 
-      this.view = $($(this.getTemplate()));
-      this.view.appendTo(container);
+      this.viewBody = $($(this.getTemplate()));
+      this.viewBody.appendTo(container);
 
-      this.nameElement = this.view.find('.name');
+      this.nameElement = this.viewBody.find('.name');
       this.nameElement.text(this.node.name);
-      this.toggleChildrenElement = this.view.find('.toggle-children');
-      this.nameInput = this.view.find('.name-input');
+      this.toggleChildrenElement = this.viewBody.find('.toggle-children');
+      this.nameInput = this.viewBody.find('.name-input');
 
-      this.toggleChildrenElement.on('click', (e) => {self.toggleChildren()});
+      this.toggleChildrenElement.on('click', (e) => {that.toggleChildren()});
       this.toggleChildren(this.node.showChildren);
-      this.view.find('.delete-node').on('click', (e) => {self.deleteNode();});
-      this.view.find('.edit-name').on('click', (e) => {self.editName();});
-      this.view.find('.save-name').on('click', (e) => {self.saveName();});
-      this.view.find('.add-child').on('click', (e) => {self.addChild()});
+      this.viewBody.find('.delete-node').on('click', (e) => {that.deleteNode();});
+      this.viewBody.find('.edit-name').on('click', (e) => {that.editName();});
+      this.viewBody.find('.save-name').on('click', (e) => {that.saveName();});
+      this.viewBody.find('.add-child').on('click', (e) => {that.addChild()});
 
       return this.getChildrenContainer();
     }
 
     private getChildrenContainer() {
-      return this.view.find('> ul.children');
+      return this.viewBody.find('> ul.children');
     }
 
     getTemplate():string {
@@ -57,22 +57,22 @@ module JsTree {
         .toggleClass('glyphicon-plus', !this.node.showChildren)
         .toggleClass('glyphicon-minus', this.node.showChildren)
         .toggleClass('invisible', this.node.children.length == 0);
-      this.view.find('> .children').toggleClass('hidden', !this.node.showChildren);
+      this.viewBody.find('> .children').toggleClass('hidden', !this.node.showChildren);
     }
 
     deleteNode() {
-      this.view.remove();
+      this.viewBody.remove();
       var index = this.parentNode.children.indexOf(this.node);
       if (index != -1) this.parentNode.children.splice(index, 1);
     }
 
     editName() {
-      this.view.addClass('edit-mode');
+      this.viewBody.addClass('edit-mode');
       this.nameInput.val(this.nameElement.text()).focus();
     }
 
     saveName() {
-      this.view.removeClass('edit-mode');
+      this.viewBody.removeClass('edit-mode');
       this.nameElement.text(this.nameInput.val());
       this.node.name = this.nameInput.val();
     }
@@ -84,6 +84,51 @@ module JsTree {
       newView.render(this.getChildrenContainer());
       this.toggleChildren(true);
       newView.editName();
+    }
+
+    getViewBody() {return this.viewBody;}
+  }
+
+  export class RootTreeNodeView extends TreeNodeView {
+    constructor(node:TreeNode) {
+      super(node, null);
+    }
+
+    render(container:JQuery):JQuery {
+      var that = this;
+      var resultContainer = super.render(container);
+      this.getViewBody().find('#add-child-to-root').click((e) => {that.addChild()});
+      return  resultContainer;
+    }
+
+    getTemplate():string {
+      return $('#root-node-template').contents().text();
+    }
+  }
+
+
+  export interface TreeRenderer {
+    renderTree(rootNode: TreeNode);
+  }
+
+  export class RecursiveTreeRenderer implements TreeRenderer {
+
+    private container:JQuery;
+
+    constructor(container:JQuery) {
+      this.container = container;
+    }
+
+    renderTree(rootNode:JsTree.TreeNode) {
+      this.renderNode(rootNode, null, this.container);
+    }
+
+    private renderNode(node: TreeNode, parent: TreeNode, parentContainer: JQuery) {
+      var view:TreeNodeView = parent == null ? new RootTreeNodeView(node) : new TreeNodeView(node, parent);
+      var childrenContainer = view.render(parentContainer);
+      for (var i = 0; i < node.children.length; i++) {
+        this.renderNode(node.children[i], node, childrenContainer);
+      }
     }
   }
 }

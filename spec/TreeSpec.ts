@@ -87,4 +87,33 @@ module JsTree {
       expect(parentViewContainer.find('li > ul.children > li').hasClass('edit-mode')).toBe(true);
     });
   });
+
+  describe('Recursive tree renderer', () => {
+    it('renders tree nodes recursively', () => {
+      var mainContainer = $('<div id="main-container"></div>');
+      var tree = {name: 'ROOT', showChildren: true, children: [
+        {name: 'A', showChildren: false, children: [
+          {name: 'B', showChildren: false, children:[]},
+          {name: 'C', showChildren: false, children:[]}
+        ]},
+        {name: 'D', showChildren: false, children:[]}
+      ]};
+      var renderer = new JsTree.RecursiveTreeRenderer(mainContainer);
+
+      renderer.renderTree(tree);
+      console.log(mainContainer.html());
+      expect(mainContainer.find('#root-node #add-child-to-root').length).toBe(1);
+      expect(mainContainer.find('#root-node > ul.children').length).toBe(1);
+      expect(mainContainer.find('#root-node > ul.children > li').length).toBe(2);
+
+      expect(mainContainer.find('#root-node > ul.children > li').eq(0).find(' > .name').text()).toBe('A');
+      expect(mainContainer.find('#root-node > ul.children > li').eq(1).find(' > .name').text()).toBe('D');
+
+      expect(mainContainer.find('#root-node > ul.children > li').eq(0).find(' > ul.children > li').length).toBe(2);
+      expect(mainContainer.find('#root-node > ul.children > li').eq(0).find(' > ul.children > li').eq(0).find('> .name').text()).toBe('B');
+      expect(mainContainer.find('#root-node > ul.children > li').eq(0).find(' > ul.children > li').eq(1).find('> .name').text()).toBe('C');
+
+      expect(mainContainer.find('#root-node > ul.children > li').eq(1).find(' > ul.children > li').length).toBe(0);
+    });
+  });
 }

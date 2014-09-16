@@ -4,21 +4,26 @@
 
 module JsTree {
   var node: JsTree.TreeNode;
+  var subChild:JsTree.TreeNode;
   var parentNode: JsTree.TreeNode;
   var treeNodeView: JsTree.TreeNodeView;
   var parentViewContainer:JQuery;
+  var treeNodeViewChildContainer:JQuery;
 
 
   beforeEach(() => {
-    node = {name: 'nodeName', showChildren: false, children: [{name: 'bar', showChildren: false, children: []}]};
+    subChild = {name: 'bar', showChildren: false, children: []};
+    node = {name: 'nodeName', showChildren: false, children: [subChild]};
     parentNode = {name: 'parentNodeName', showChildren: false, children: [
       {name: 'foo', showChildren: false, children: []},
       node,
       {name: 'bar', showChildren: false, children: []}
     ]};
-    treeNodeView = new JsTree.TreeNodeView(node, parentNode);
     parentViewContainer = $('<ul></ul>');
-    treeNodeView.render(parentViewContainer);
+    var rootTreeNodeView = new JsTree.RootTreeNodeView(parentNode, parentViewContainer);
+    rootTreeNodeView.getChildrenContainer = function() {return parentViewContainer};
+    treeNodeView = new JsTree.TreeNodeView(node, rootTreeNodeView);
+    treeNodeViewChildContainer = treeNodeView.render();
   });
 
   describe('Tree node view', () => {
@@ -64,6 +69,16 @@ module JsTree {
       expect(parentViewContainer.find('.list-group-item').length).toBe(0);
     });
 
+    it(' hides children toggling option when last child is deleted', () => {
+      var childTreeNodeView = new JsTree.TreeNodeView(subChild, treeNodeView);
+      childTreeNodeView.render();
+      expect(parentViewContainer.find(' > li > .toggle-children').hasClass('invisible')).toBe(false);
+
+      childTreeNodeView.deleteNode();
+
+      expect(parentViewContainer.find(' > li > .toggle-children').hasClass('invisible')).toBe(true);
+    });
+
     it(' allows editing node name', () => {
       expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(false);
 
@@ -101,7 +116,6 @@ module JsTree {
       var renderer = new JsTree.RecursiveTreeRenderer(mainContainer);
 
       renderer.renderTree(tree);
-      console.log(mainContainer.html());
       expect(mainContainer.find('#root-node #add-child-to-root').length).toBe(1);
       expect(mainContainer.find('#root-node > ul.children').length).toBe(1);
       expect(mainContainer.find('#root-node > ul.children > li').length).toBe(2);

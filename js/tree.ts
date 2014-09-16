@@ -12,40 +12,48 @@ module JsTree {
     private viewBody:JQuery;
 
     private node:TreeNode;
-    private parentNode:TreeNode;
+    private parentView:TreeNodeView;
     private nameElement:JQuery;
     private toggleChildrenElement:JQuery;
     private nameInput:JQuery;
 
-    constructor(node:TreeNode, parentNode:TreeNode) {
+    constructor(node:TreeNode, parentView: TreeNodeView) {
       this.node = node;
-      this.parentNode = parentNode;
+      this.parentView = parentView;
+      this.viewBody = $($(this.getTemplate()));
+      this.initElements()
+      this.bindActionHandlers();
     }
 
-    render(container:JQuery):JQuery {
-      var that = this;
-
-      this.viewBody = $($(this.getTemplate()));
-      this.viewBody.appendTo(container);
-
+    initElements() {
       this.nameElement = this.viewBody.find('.name');
+
       this.nameElement.text(this.node.name);
       this.toggleChildrenElement = this.viewBody.find('.toggle-children');
       this.nameInput = this.viewBody.find('.name-input');
+      this.toggleChildren(this.node.showChildren);
+    }
+
+    bindActionHandlers() {
+      var that = this;
 
       this.toggleChildrenElement.on('click', (e) => {that.toggleChildren()});
-      this.toggleChildren(this.node.showChildren);
       this.viewBody.find('.delete-node').on('click', (e) => {that.deleteNode();});
       this.viewBody.find('.edit-name').on('click', (e) => {that.editName();});
       this.viewBody.find('.save-name').on('click', (e) => {that.saveName();});
       this.viewBody.find('.add-child').on('click', (e) => {that.addChild();});
+    }
 
+    render():JQuery {
+      this.viewBody.appendTo(this.getRenderToContainer());
       return this.getChildrenContainer();
     }
 
-    private getChildrenContainer() {
-      return this.viewBody.find('> ul.children');
+    getRenderToContainer():JQuery {
+      return this.parentView.getChildrenContainer();
     }
+
+    getChildrenContainer():JQuery { return this.viewBody.find('> ul.children');}
 
     getTemplate():string {
       return $('#node-template').contents().text();
@@ -62,8 +70,13 @@ module JsTree {
 
     deleteNode() {
       this.viewBody.remove();
-      var index = this.parentNode.children.indexOf(this.node);
-      if (index != -1) this.parentNode.children.splice(index, 1);
+      this.parentView.deleteNodeFromParentModel(this.node);
+    }
+
+    deleteNodeFromParentModel(treeNode: TreeNode) {
+      var index = this.node.children.indexOf(treeNode);
+      if (index != -1) this.node.children.splice(index, 1);
+      this.toggleChildren(true);
     }
 
     editName() {
@@ -80,8 +93,8 @@ module JsTree {
     addChild() {
       var newNode = {name: '', showChildren: false, children: []};
       this.node.children.push(newNode);
-      var newView = new TreeNodeView(newNode, this.node);
-      newView.render(this.getChildrenContainer());
+      var newView = new TreeNodeView(newNode, this);
+      newView.render();
       this.toggleChildren(true);
       newView.editName();
     }
@@ -90,19 +103,29 @@ module JsTree {
   }
 
   export class RootTreeNodeView extends TreeNodeView {
-    constructor(node:TreeNode) {
+
+    private parentContainer:JQuery;
+
+    constructor(node:TreeNode, parentContainer: JQuery) {
+      this.parentContainer = parentContainer;
       super(node, null);
     }
 
-    render(container:JQuery):JQuery {
+    initElements() {}
+
+    bindActionHandlers() {
       var that = this;
-      var resultContainer = super.render(container);
       this.getViewBody().find('#add-child-to-root').click((e) => {that.addChild()});
-      return  resultContainer;
     }
+
+    getRenderToContainer():JQuery {return this.parentContainer;}
 
     getTemplate():string {
       return $('#root-node-template').contents().text();
+    }
+
+    toggleChildren(showChildren?:boolean) {
+      // do nothing, in root view children are always expanded
     }
   }
 
@@ -120,14 +143,14 @@ module JsTree {
     }
 
     renderTree(rootNode:JsTree.TreeNode) {
-      this.renderNode(rootNode, null, this.container);
+      this.renderNode(rootNode, null);
     }
 
-    private renderNode(node: TreeNode, parent: TreeNode, parentContainer: JQuery) {
-      var view:TreeNodeView = parent == null ? new RootTreeNodeView(node) : new TreeNodeView(node, parent);
-      var childrenContainer = view.render(parentContainer);
+    private renderNode(node: TreeNode, parentView: TreeNodeView) {
+      var view:TreeNodeView = parentView == null ? new RootTreeNodeView(node, this.container) : new TreeNodeView(node, parentView);
+      var childrenContainer = view.render();
       for (var i = 0; i < node.children.length; i++) {
-        this.renderNode(node.children[i], node, childrenContainer);
+        this.renderNode(node.children[i], view);
       }
     }
   }
@@ -144,12 +167,6 @@ module JsTree {
     renderTree(rootNode: TreeNode) {
       if (rootNode != null) this.rootNode = rootNode;
       new RecursiveTreeRenderer(this.container.html('')).renderTree(this.rootNode);
-    }
-
-    private renderNodeRecursively(node: TreeNode, parent: TreeNode, container: JQuery) {
-      for (var i = 0; i < node.children.length; i++) {
-        this.renderNodeRecursively(node.children[i], node, new TreeNodeView(node.children[i], node).render(container));
-      }
     }
   }
 }

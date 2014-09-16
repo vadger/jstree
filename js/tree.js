@@ -8,25 +8,28 @@ var __extends = this.__extends || function (d, b) {
 var JsTree;
 (function (JsTree) {
     var TreeNodeView = (function () {
-        function TreeNodeView(node, parentNode) {
+        function TreeNodeView(node, parentView) {
             this.node = node;
-            this.parentNode = parentNode;
-        }
-        TreeNodeView.prototype.render = function (container) {
-            var that = this;
-
+            this.parentView = parentView;
             this.viewBody = $($(this.getTemplate()));
-            this.viewBody.appendTo(container);
-
+            this.initElements();
+            this.bindActionHandlers();
+        }
+        TreeNodeView.prototype.initElements = function () {
             this.nameElement = this.viewBody.find('.name');
+
             this.nameElement.text(this.node.name);
             this.toggleChildrenElement = this.viewBody.find('.toggle-children');
             this.nameInput = this.viewBody.find('.name-input');
+            this.toggleChildren(this.node.showChildren);
+        };
+
+        TreeNodeView.prototype.bindActionHandlers = function () {
+            var that = this;
 
             this.toggleChildrenElement.on('click', function (e) {
                 that.toggleChildren();
             });
-            this.toggleChildren(this.node.showChildren);
             this.viewBody.find('.delete-node').on('click', function (e) {
                 that.deleteNode();
             });
@@ -39,8 +42,15 @@ var JsTree;
             this.viewBody.find('.add-child').on('click', function (e) {
                 that.addChild();
             });
+        };
 
+        TreeNodeView.prototype.render = function () {
+            this.viewBody.appendTo(this.getRenderToContainer());
             return this.getChildrenContainer();
+        };
+
+        TreeNodeView.prototype.getRenderToContainer = function () {
+            return this.parentView.getChildrenContainer();
         };
 
         TreeNodeView.prototype.getChildrenContainer = function () {
@@ -59,9 +69,14 @@ var JsTree;
 
         TreeNodeView.prototype.deleteNode = function () {
             this.viewBody.remove();
-            var index = this.parentNode.children.indexOf(this.node);
+            this.parentView.deleteNodeFromParentModel(this.node);
+        };
+
+        TreeNodeView.prototype.deleteNodeFromParentModel = function (treeNode) {
+            var index = this.node.children.indexOf(treeNode);
             if (index != -1)
-                this.parentNode.children.splice(index, 1);
+                this.node.children.splice(index, 1);
+            this.toggleChildren(true);
         };
 
         TreeNodeView.prototype.editName = function () {
@@ -78,8 +93,8 @@ var JsTree;
         TreeNodeView.prototype.addChild = function () {
             var newNode = { name: '', showChildren: false, children: [] };
             this.node.children.push(newNode);
-            var newView = new TreeNodeView(newNode, this.node);
-            newView.render(this.getChildrenContainer());
+            var newView = new TreeNodeView(newNode, this);
+            newView.render();
             this.toggleChildren(true);
             newView.editName();
         };
@@ -93,20 +108,30 @@ var JsTree;
 
     var RootTreeNodeView = (function (_super) {
         __extends(RootTreeNodeView, _super);
-        function RootTreeNodeView(node) {
+        function RootTreeNodeView(node, parentContainer) {
+            this.parentContainer = parentContainer;
             _super.call(this, node, null);
         }
-        RootTreeNodeView.prototype.render = function (container) {
+        RootTreeNodeView.prototype.initElements = function () {
+        };
+
+        RootTreeNodeView.prototype.bindActionHandlers = function () {
             var that = this;
-            var resultContainer = _super.prototype.render.call(this, container);
             this.getViewBody().find('#add-child-to-root').click(function (e) {
                 that.addChild();
             });
-            return resultContainer;
+        };
+
+        RootTreeNodeView.prototype.getRenderToContainer = function () {
+            return this.parentContainer;
         };
 
         RootTreeNodeView.prototype.getTemplate = function () {
             return $('#root-node-template').contents().text();
+        };
+
+        RootTreeNodeView.prototype.toggleChildren = function (showChildren) {
+            // do nothing, in root view children are always expanded
         };
         return RootTreeNodeView;
     })(TreeNodeView);
@@ -117,14 +142,14 @@ var JsTree;
             this.container = container;
         }
         RecursiveTreeRenderer.prototype.renderTree = function (rootNode) {
-            this.renderNode(rootNode, null, this.container);
+            this.renderNode(rootNode, null);
         };
 
-        RecursiveTreeRenderer.prototype.renderNode = function (node, parent, parentContainer) {
-            var view = parent == null ? new RootTreeNodeView(node) : new TreeNodeView(node, parent);
-            var childrenContainer = view.render(parentContainer);
+        RecursiveTreeRenderer.prototype.renderNode = function (node, parentView) {
+            var view = parentView == null ? new RootTreeNodeView(node, this.container) : new TreeNodeView(node, parentView);
+            var childrenContainer = view.render();
             for (var i = 0; i < node.children.length; i++) {
-                this.renderNode(node.children[i], node, childrenContainer);
+                this.renderNode(node.children[i], view);
             }
         };
         return RecursiveTreeRenderer;
@@ -140,12 +165,6 @@ var JsTree;
             if (rootNode != null)
                 this.rootNode = rootNode;
             new RecursiveTreeRenderer(this.container.html('')).renderTree(this.rootNode);
-        };
-
-        MainView.prototype.renderNodeRecursively = function (node, parent, container) {
-            for (var i = 0; i < node.children.length; i++) {
-                this.renderNodeRecursively(node.children[i], node, new TreeNodeView(node.children[i], node).render(container));
-            }
         };
         return MainView;
     })();

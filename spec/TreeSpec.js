@@ -4,25 +4,34 @@
 var JsTree;
 (function (JsTree) {
     var node;
+    var subChild;
     var parentNode;
     var treeNodeView;
     var parentViewContainer;
+    var treeNodeViewChildContainer;
 
     beforeEach(function () {
-        node = { name: 'nodeName', showChildren: false, children: [{ name: 'bar', showChildren: false, children: [] }] };
+        subChild = { name: 'bar', showChildren: false, children: [] };
+        node = { name: 'nodeName', showChildren: false, children: [subChild] };
         parentNode = {
             name: 'parentNodeName', showChildren: false, children: [
                 { name: 'foo', showChildren: false, children: [] },
                 node,
                 { name: 'bar', showChildren: false, children: [] }
             ] };
-        treeNodeView = new JsTree.TreeNodeView(node, parentNode);
         parentViewContainer = $('<ul></ul>');
-        treeNodeView.render(parentViewContainer);
+        var rootTreeNodeView = new JsTree.RootTreeNodeView(parentNode, parentViewContainer);
+        rootTreeNodeView.getChildrenContainer = function () {
+            return parentViewContainer;
+        };
+        treeNodeView = new JsTree.TreeNodeView(node, rootTreeNodeView);
+        treeNodeViewChildContainer = treeNodeView.render();
     });
 
     describe('Tree node view', function () {
         it(' renders itself to parent view container', function () {
+            console.log('blaah');
+            console.log(parentViewContainer.html());
             expect(parentViewContainer.find('.list-group-item').length).toBe(1);
             expect(parentViewContainer.find('.list-group-item .name').text()).toBe('nodeName');
         });
@@ -61,6 +70,16 @@ var JsTree;
             expect(parentNode.children.length).toBe(2);
             expect(parentNode.children.indexOf(node)).toBe(-1);
             expect(parentViewContainer.find('.list-group-item').length).toBe(0);
+        });
+
+        it(' hides children toggling option when last child is deleted', function () {
+            var childTreeNodeView = new JsTree.TreeNodeView(subChild, treeNodeView);
+            childTreeNodeView.render();
+            expect(parentViewContainer.find(' > li > .toggle-children').hasClass('invisible')).toBe(false);
+
+            childTreeNodeView.deleteNode();
+
+            expect(parentViewContainer.find(' > li > .toggle-children').hasClass('invisible')).toBe(true);
         });
 
         it(' allows editing node name', function () {
@@ -102,7 +121,6 @@ var JsTree;
             var renderer = new JsTree.RecursiveTreeRenderer(mainContainer);
 
             renderer.renderTree(tree);
-            console.log(mainContainer.html());
             expect(mainContainer.find('#root-node #add-child-to-root').length).toBe(1);
             expect(mainContainer.find('#root-node > ul.children').length).toBe(1);
             expect(mainContainer.find('#root-node > ul.children > li').length).toBe(2);

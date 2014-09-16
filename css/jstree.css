@@ -69,3 +69,7 @@ input.name-input:focus {
 .invisible {
   visibility: hidden;
 }
+
+#save-to-local-storage, #restore-from-local-storage {
+  margin-top: 5px;
+}

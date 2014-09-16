@@ -21,7 +21,7 @@ module JsTree {
       this.node = node;
       this.parentView = parentView;
       this.viewBody = $($(this.getTemplate()));
-      this.initElements()
+      this.initElements();
       this.bindActionHandlers();
     }
 
@@ -168,17 +168,38 @@ module JsTree {
   }
 
   export class MainView {
-    private rootNode:TreeNode = {name: '', showChildren: true, children: []};
+    rootNode:TreeNode = {name: '', showChildren: true, children: []};
 
     private container:JQuery;
 
     constructor(container:JQuery) {
       this.container = container;
+      this.container.html(this.getTemplate());
+
+      var that = this;
+      this.container.find('#save-to-local-storage').on('click', (e) => {that.saveToLocalStorage()});
+      this.container.find('#restore-from-local-storage').on('click', (e) => {that.renderTree()});
     }
 
-    renderTree(rootNode: TreeNode) {
-      if (rootNode != null) this.rootNode = rootNode;
-      new RecursiveTreeRenderer(this.container.html('')).renderTree(this.rootNode);
+    restoreFromLocalStorage() {
+      var jsonString = localStorage.getItem('jsTree');
+      if (jsonString) this.rootNode = JSON.parse(jsonString);
+      else this.rootNode = {name: '', showChildren: true, children: []};
+    }
+
+    saveToLocalStorage() {
+      localStorage.setItem('jsTree', JSON.stringify(this.rootNode));
+    }
+
+    getTemplate():string {
+      return '<div id="tree-container"></div>' +
+        '<button type="button" class="btn btn-primary btn-lg btn-block" id="save-to-local-storage">Save to local storage</button>' +
+        '<button type="button" class="btn btn-primary btn-lg btn-block" id="restore-from-local-storage">Restore from local storage</button>';
+    }
+
+    renderTree() {
+      this.restoreFromLocalStorage();
+      new RecursiveTreeRenderer(this.container.find('#tree-container').html('')).renderTree(this.rootNode);
     }
   }
 }

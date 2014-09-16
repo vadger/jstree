@@ -160,11 +160,35 @@ var JsTree;
         function MainView(container) {
             this.rootNode = { name: '', showChildren: true, children: [] };
             this.container = container;
+            this.container.html(this.getTemplate());
+
+            var that = this;
+            this.container.find('#save-to-local-storage').on('click', function (e) {
+                that.saveToLocalStorage();
+            });
+            this.container.find('#restore-from-local-storage').on('click', function (e) {
+                that.renderTree();
+            });
         }
-        MainView.prototype.renderTree = function (rootNode) {
-            if (rootNode != null)
-                this.rootNode = rootNode;
-            new RecursiveTreeRenderer(this.container.html('')).renderTree(this.rootNode);
+        MainView.prototype.restoreFromLocalStorage = function () {
+            var jsonString = localStorage.getItem('jsTree');
+            if (jsonString)
+                this.rootNode = JSON.parse(jsonString);
+            else
+                this.rootNode = { name: '', showChildren: true, children: [] };
+        };
+
+        MainView.prototype.saveToLocalStorage = function () {
+            localStorage.setItem('jsTree', JSON.stringify(this.rootNode));
+        };
+
+        MainView.prototype.getTemplate = function () {
+            return '<div id="tree-container"></div>' + '<button type="button" class="btn btn-primary btn-lg btn-block" id="save-to-local-storage">Save to local storage</button>' + '<button type="button" class="btn btn-primary btn-lg btn-block" id="restore-from-local-storage">Restore from local storage</button>';
+        };
+
+        MainView.prototype.renderTree = function () {
+            this.restoreFromLocalStorage();
+            new RecursiveTreeRenderer(this.container.find('#tree-container').html('')).renderTree(this.rootNode);
         };
         return MainView;
     })();

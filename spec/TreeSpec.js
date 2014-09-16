@@ -30,8 +30,6 @@ var JsTree;
 
     describe('Tree node view', function () {
         it(' renders itself to parent view container', function () {
-            console.log('blaah');
-            console.log(parentViewContainer.html());
             expect(parentViewContainer.find('.list-group-item').length).toBe(1);
             expect(parentViewContainer.find('.list-group-item .name').text()).toBe('nodeName');
         });

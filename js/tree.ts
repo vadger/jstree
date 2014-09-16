@@ -56,7 +56,16 @@ module JsTree {
     getChildrenContainer():JQuery { return this.viewBody.find('> ul.children');}
 
     getTemplate():string {
-      return $('#node-template').contents().text();
+      return '<li class="list-group-item">' +
+                '<span class="glyphicon toggle-children"></span>' +
+                '<span class="edit-mode-hidden name"></span>' +
+                '<input type="text" class="edit-mode-visible name-input">' +
+                '<span class="glyphicon glyphicon-trash edit-mode-hidden delete-node"></span>' +
+                '<span class="glyphicon glyphicon-pencil edit-mode-hidden edit-name"></span>' +
+                '<span class="glyphicon glyphicon-plus-sign edit-mode-hidden add-child"></span>' +
+                '<span class="glyphicon glyphicon-ok edit-mode-visible save-name"></span>' +
+                '<ul class="list-group children hidden"></ul>' +
+              '</li>';
     }
 
     toggleChildren(showChildren?:boolean) {
@@ -121,7 +130,10 @@ module JsTree {
     getRenderToContainer():JQuery {return this.parentContainer;}
 
     getTemplate():string {
-      return $('#root-node-template').contents().text();
+      return '<div id="root-node">' +
+        '<button type="button" class="btn btn-primary btn-lg btn-block" id="add-child-to-root">Add child to root</button>' +
+        '<ul class="list-group children"></ul>' +
+      '</div>';
     }
 
     toggleChildren(showChildren?:boolean) {
@@ -148,7 +160,7 @@ module JsTree {
 
     private renderNode(node: TreeNode, parentView: TreeNodeView) {
       var view:TreeNodeView = parentView == null ? new RootTreeNodeView(node, this.container) : new TreeNodeView(node, parentView);
-      var childrenContainer = view.render();
+      view.render();
       for (var i = 0; i < node.children.length; i++) {
         this.renderNode(node.children[i], view);
       }

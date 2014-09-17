@@ -1,15 +1,21 @@
 /// <reference path="../tsd/jasmine.d.ts" />
 /// <reference path="../tsd/jquery.d.ts" />
-/// <reference path="../js/tree.ts" />
+/// <reference path="../js/TreeNode.ts" />
+/// <reference path="../js/TreeNodeView.ts" />
+/// <reference path="../js/RootTreeNodeView.ts" />
+/// <reference path="../js/TreeRenderer.ts" />
+/// <reference path="../js/RecursiveTreeRenderer.ts" />
+/// <reference path="../js/IterativeTreeRenderer.ts" />
+/// <reference path="../js/MainView.ts" />
 
 module JsTree {
-  var node: JsTree.TreeNode;
-  var subChild:JsTree.TreeNode;
-  var parentNode: JsTree.TreeNode;
-  var treeNodeView: JsTree.TreeNodeView;
+  var node: TreeNode;
+  var subChild:TreeNode;
+  var parentNode: TreeNode;
+  var treeNodeView: TreeNodeView;
   var parentViewContainer:JQuery;
   var treeNodeViewChildContainer:JQuery;
-  var tree: JsTree.TreeNode;
+  var tree: TreeNode;
 
 
   beforeEach(() => {
@@ -21,9 +27,9 @@ module JsTree {
       {name: 'bar', showChildren: false, children: []}
     ]};
     parentViewContainer = $('<ul></ul>');
-    var rootTreeNodeView = new JsTree.RootTreeNodeView(parentNode, parentViewContainer);
+    var rootTreeNodeView = new RootTreeNodeView(parentNode, parentViewContainer);
     rootTreeNodeView.getChildrenContainer = function() {return parentViewContainer};
-    treeNodeView = new JsTree.TreeNodeView(node, rootTreeNodeView);
+    treeNodeView = new TreeNodeView(node, rootTreeNodeView);
     treeNodeViewChildContainer = treeNodeView.render();
 
     tree = {name: 'ROOT', showChildren: true, children: [
@@ -81,7 +87,7 @@ module JsTree {
     });
 
     it(' hides children toggling option when last child is deleted', () => {
-      var childTreeNodeView = new JsTree.TreeNodeView(subChild, treeNodeView);
+      var childTreeNodeView = new TreeNodeView(subChild, treeNodeView);
       childTreeNodeView.render();
       expect(parentViewContainer.find(' > li > .toggle-children').hasClass('invisible')).toBe(false);
 
@@ -135,7 +141,7 @@ module JsTree {
   describe('Recursive tree renderer', () => {
     it('renders tree nodes recursively', () => {
       var mainContainer = $('<div id="main-container"></div>');
-      var renderer = new JsTree.RecursiveTreeRenderer(mainContainer);
+      var renderer = new RecursiveTreeRenderer(mainContainer);
 
       renderer.renderTree(tree);
 
@@ -146,7 +152,7 @@ module JsTree {
   describe('Iterative tree renderer', () => {
     it('renders tree nodes using own stack', () => {
       var mainContainer = $('<div id="main-container"></div>');
-      var renderer = new JsTree.IterativeTreeRenderer(mainContainer);
+      var renderer = new IterativeTreeRenderer(mainContainer);
 
       renderer.renderTree(tree);
       assertTree(mainContainer);
@@ -163,7 +169,7 @@ module JsTree {
     it('reads tree structure from local storage', () => {
       localStorage.setItem('jsTree', JSON.stringify(tree));
 
-      new JsTree.MainView(mainContainer).renderTree();
+      new MainView(mainContainer).renderTree();
 
       assertTree(mainContainer);
     });
@@ -171,7 +177,7 @@ module JsTree {
     it('by clicking button "Save to local storage" save current tree state to local storage', function() {
       localStorage.setItem('jsTree', JSON.stringify(tree));
 
-      var mainView = new JsTree.MainView(mainContainer);
+      var mainView = new MainView(mainContainer);
       mainView.renderTree();
 
       mainView.rootNode = {name: 'NEWROOT', showChildren: true, children: []};

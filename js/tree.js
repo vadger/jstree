@@ -1,10 +1,5 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 /// <reference path="../tsd/jquery.d.ts" />
+/// <reference path="TreeNode.ts" />
 var JsTree;
 (function (JsTree) {
     var TreeNodeView = (function () {
@@ -109,7 +104,18 @@ var JsTree;
         return TreeNodeView;
     })();
     JsTree.TreeNodeView = TreeNodeView;
-
+})(JsTree || (JsTree = {}));
+/// <reference path="../tsd/jquery.d.ts" />
+/// <reference path="TreeNode.ts" />
+/// <reference path="TreeNodeView.ts" />
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var JsTree;
+(function (JsTree) {
     var RootTreeNodeView = (function (_super) {
         __extends(RootTreeNodeView, _super);
         function RootTreeNodeView(node, parentContainer) {
@@ -138,9 +144,16 @@ var JsTree;
             // do nothing, in root view children are always expanded
         };
         return RootTreeNodeView;
-    })(TreeNodeView);
+    })(JsTree.TreeNodeView);
     JsTree.RootTreeNodeView = RootTreeNodeView;
-
+})(JsTree || (JsTree = {}));
+/// <reference path="../tsd/jquery.d.ts" />
+/// <reference path="TreeNode.ts" />
+/// <reference path="RootTreeNodeView.ts" />
+/// <reference path="TreeNodeView.ts" />
+/// <reference path="TreeRenderer.ts" />
+var JsTree;
+(function (JsTree) {
     var RecursiveTreeRenderer = (function () {
         function RecursiveTreeRenderer(container) {
             this.container = container;
@@ -150,7 +163,7 @@ var JsTree;
         };
 
         RecursiveTreeRenderer.prototype.renderNode = function (node, parentView) {
-            var view = parentView == null ? new RootTreeNodeView(node, this.container) : new TreeNodeView(node, parentView);
+            var view = parentView == null ? new JsTree.RootTreeNodeView(node, this.container) : new JsTree.TreeNodeView(node, parentView);
             view.render();
             for (var i = 0; i < node.children.length; i++) {
                 this.renderNode(node.children[i], view);
@@ -159,7 +172,14 @@ var JsTree;
         return RecursiveTreeRenderer;
     })();
     JsTree.RecursiveTreeRenderer = RecursiveTreeRenderer;
-
+})(JsTree || (JsTree = {}));
+/// <reference path="../tsd/jquery.d.ts" />
+/// <reference path="TreeNode.ts" />
+/// <reference path="RootTreeNodeView.ts" />
+/// <reference path="TreeNodeView.ts" />
+/// <reference path="TreeRenderer.ts" />
+var JsTree;
+(function (JsTree) {
     var IterativeTreeRenderer = (function () {
         function IterativeTreeRenderer(container) {
             this.container = container;
@@ -172,7 +192,7 @@ var JsTree;
 
             while (nodeStack.length) {
                 var node = nodeStack.pop();
-                var view = renderedViews.length ? new TreeNodeView(node, this.getParentView(node, renderedViews)) : new RootTreeNodeView(node, this.container);
+                var view = renderedViews.length ? new JsTree.TreeNodeView(node, this.getParentView(node, renderedViews)) : new JsTree.RootTreeNodeView(node, this.container);
                 view.render();
                 renderedViews.push(view);
 
@@ -193,7 +213,16 @@ var JsTree;
         return IterativeTreeRenderer;
     })();
     JsTree.IterativeTreeRenderer = IterativeTreeRenderer;
-
+})(JsTree || (JsTree = {}));
+/// <reference path="../tsd/jquery.d.ts" />
+/// <reference path="TreeNode.ts" />
+/// <reference path="TreeNodeView.ts" />
+/// <reference path="RootTreeNodeView.ts" />
+/// <reference path="TreeRenderer.ts" />
+/// <reference path="RecursiveTreeRenderer.ts" />
+/// <reference path="IterativeTreeRenderer.ts" />
+var JsTree;
+(function (JsTree) {
     var MainView = (function () {
         function MainView(container) {
             this.rootNode = { name: '', showChildren: true, children: [] };
@@ -241,7 +270,7 @@ var JsTree;
 
         MainView.prototype.getRenderer = function () {
             var treeContainer = this.container.find('#tree-container').html('');
-            return this.iterativeRenderer ? new IterativeTreeRenderer(treeContainer) : new RecursiveTreeRenderer(treeContainer);
+            return this.iterativeRenderer ? new JsTree.IterativeTreeRenderer(treeContainer) : new JsTree.RecursiveTreeRenderer(treeContainer);
         };
 
         MainView.prototype.renderTree = function () {

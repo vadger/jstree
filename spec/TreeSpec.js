@@ -111,7 +111,9 @@ var JsTree;
 
         it(' allows adding child to any node', function () {
             expect(parentViewContainer.find('li > ul.children > li').length).toBe(0);
-            treeNodeView.addChild();
+
+            parentViewContainer.find('> li > .add-child').click();
+
             expect(parentViewContainer.find('li > ul.children > li').length).toBe(1);
             expect(node.showChildren).toBe(true);
             expect(parentViewContainer.find('li > ul.children > li').hasClass('edit-mode')).toBe(true);

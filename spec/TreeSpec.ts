@@ -45,23 +45,25 @@ module JsTree {
     it(' can toggle its children', () => {
       var childrenContainer = parentViewContainer.find('li > ul.children');
       expect(childrenContainer.hasClass('hidden')).toBe(true);
-      expect(parentViewContainer.find('li > .toggle-children.glyphicon-plus').length).toBe(1);
+      var toggleChildrenControl = parentViewContainer.find('li > .toggle-children');
+      expect(toggleChildrenControl.hasClass('glyphicon-plus')).toBe(true);
 
-      treeNodeView.toggleChildren();
+      toggleChildrenControl.click();
+
       expect(childrenContainer.hasClass('hidden')).toBe(false);
-      expect(parentViewContainer.find('li > .toggle-children.glyphicon-minus').length).toBe(1);
+      expect(toggleChildrenControl.hasClass('glyphicon-minus')).toBe(true);
 
       treeNodeView.toggleChildren(true);
       expect(childrenContainer.hasClass('hidden')).toBe(false);
-      expect(parentViewContainer.find('li > .toggle-children.glyphicon-minus').length).toBe(1);
+      expect(toggleChildrenControl.hasClass('glyphicon-minus')).toBe(true);
 
       treeNodeView.toggleChildren(false);
       expect(childrenContainer.hasClass('hidden')).toBe(true);
-      expect(parentViewContainer.find('li > .toggle-children.glyphicon-plus').length).toBe(1);
+      expect(toggleChildrenControl.hasClass('glyphicon-plus')).toBe(true);
 
       treeNodeView.toggleChildren(false);
       expect(childrenContainer.hasClass('hidden')).toBe(true);
-      expect(parentViewContainer.find('li > .toggle-children.glyphicon-plus').length).toBe(1);
+      expect(toggleChildrenControl.hasClass('glyphicon-plus')).toBe(true);
     });
 
     it(' without any child does not show children toggle options', () => {

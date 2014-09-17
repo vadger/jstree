@@ -109,6 +109,10 @@ module JsTree {
     }
 
     getViewBody() {return this.viewBody;}
+
+    isParentOf(node:TreeNode):boolean {
+      return this.node.children.indexOf(node) != -1;
+    }
   }
 
   export class RootTreeNodeView extends TreeNodeView {
@@ -167,10 +171,47 @@ module JsTree {
     }
   }
 
+  export class IterativeTreeRenderer implements TreeRenderer {
+
+    private container:JQuery;
+
+    constructor(container:JQuery) {
+      this.container = container;
+    }
+
+    renderTree(rootNode:JsTree.TreeNode) {
+      var nodeStack:Array<TreeNode> = [];
+      var renderedViews:Array<TreeNodeView> = [];
+
+      nodeStack.push(rootNode);
+
+      while(nodeStack.length) {
+        var node = nodeStack.pop();
+        var view:TreeNodeView = renderedViews.length ? new TreeNodeView(node, this.getParentView(node, renderedViews)) : new RootTreeNodeView(node, this.container);
+        view.render();
+        renderedViews.push(view);
+
+        for (var i = node.children.length - 1; i >= 0; i--) {
+          nodeStack.push(node.children[i]);
+        }
+      }
+    }
+
+    private getParentView(node:TreeNode, renderedViews:Array<TreeNodeView>):TreeNodeView {
+      for (var i = 0; i < renderedViews.length; i++) {
+        var view = renderedViews[i];
+        if (view.isParentOf(node)) return view;
+      }
+      throw new Error('Parent view should exist for node ' + JSON.stringify(node));
+    }
+
+  }
+
   export class MainView {
     rootNode:TreeNode = {name: '', showChildren: true, children: []};
 
     private container:JQuery;
+    private iterativeRenderer:boolean = true;
 
     constructor(container:JQuery) {
       this.container = container;
@@ -179,6 +220,20 @@ module JsTree {
       var that = this;
       this.container.find('#save-to-local-storage').on('click', (e) => {that.saveToLocalStorage()});
       this.container.find('#restore-from-local-storage').on('click', (e) => {that.renderTree()});
+    }
+
+    withIterativeRenderer():MainView {
+      this.iterativeRenderer = true;
+      return this;
+    }
+
+    withRecursiveRenderer():MainView {
+      this.iterativeRenderer = false;
+      return this;
+    }
+
+    private getTreeContainer():JQuery {
+      return this.container.find('#tree-container').html('');
     }
 
     restoreFromLocalStorage() {
@@ -197,9 +252,14 @@ module JsTree {
         '<button type="button" class="btn btn-primary btn-lg btn-block" id="restore-from-local-storage">Restore from local storage</button>';
     }
 
+    private getRenderer():TreeRenderer {
+      var treeContainer = this.container.find('#tree-container').html('');
+      return this.iterativeRenderer ? new IterativeTreeRenderer(treeContainer) : new RecursiveTreeRenderer(treeContainer);
+    }
+
     renderTree() {
       this.restoreFromLocalStorage();
-      new RecursiveTreeRenderer(this.container.find('#tree-container').html('')).renderTree(this.rootNode);
+      this.getRenderer().renderTree(this.rootNode);
     }
   }
 }

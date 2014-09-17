@@ -138,6 +138,16 @@ module JsTree {
     });
   });
 
+  describe('Iterative tree renderer', () => {
+    it('renders tree nodes using own stack', () => {
+      var mainContainer = $('<div id="main-container"></div>');
+      var renderer = new JsTree.IterativeTreeRenderer(mainContainer);
+
+      renderer.renderTree(tree);
+      assertTree(mainContainer);
+    });
+  });
+
   describe('Main view', () => {
     var mainContainer:JQuery;
     beforeEach(function() {

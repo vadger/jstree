@@ -102,6 +102,10 @@ var JsTree;
         TreeNodeView.prototype.getViewBody = function () {
             return this.viewBody;
         };
+
+        TreeNodeView.prototype.isParentOf = function (node) {
+            return this.node.children.indexOf(node) != -1;
+        };
         return TreeNodeView;
     })();
     JsTree.TreeNodeView = TreeNodeView;
@@ -156,9 +160,44 @@ var JsTree;
     })();
     JsTree.RecursiveTreeRenderer = RecursiveTreeRenderer;
 
+    var IterativeTreeRenderer = (function () {
+        function IterativeTreeRenderer(container) {
+            this.container = container;
+        }
+        IterativeTreeRenderer.prototype.renderTree = function (rootNode) {
+            var nodeStack = [];
+            var renderedViews = [];
+
+            nodeStack.push(rootNode);
+
+            while (nodeStack.length) {
+                var node = nodeStack.pop();
+                var view = renderedViews.length ? new TreeNodeView(node, this.getParentView(node, renderedViews)) : new RootTreeNodeView(node, this.container);
+                view.render();
+                renderedViews.push(view);
+
+                for (var i = node.children.length - 1; i >= 0; i--) {
+                    nodeStack.push(node.children[i]);
+                }
+            }
+        };
+
+        IterativeTreeRenderer.prototype.getParentView = function (node, renderedViews) {
+            for (var i = 0; i < renderedViews.length; i++) {
+                var view = renderedViews[i];
+                if (view.isParentOf(node))
+                    return view;
+            }
+            throw new Error('Parent view should exist for node ' + JSON.stringify(node));
+        };
+        return IterativeTreeRenderer;
+    })();
+    JsTree.IterativeTreeRenderer = IterativeTreeRenderer;
+
     var MainView = (function () {
         function MainView(container) {
             this.rootNode = { name: '', showChildren: true, children: [] };
+            this.iterativeRenderer = true;
             this.container = container;
             this.container.html(this.getTemplate());
 
@@ -170,6 +209,20 @@ var JsTree;
                 that.renderTree();
             });
         }
+        MainView.prototype.withIterativeRenderer = function () {
+            this.iterativeRenderer = true;
+            return this;
+        };
+
+        MainView.prototype.withRecursiveRenderer = function () {
+            this.iterativeRenderer = false;
+            return this;
+        };
+
+        MainView.prototype.getTreeContainer = function () {
+            return this.container.find('#tree-container').html('');
+        };
+
         MainView.prototype.restoreFromLocalStorage = function () {
             var jsonString = localStorage.getItem('jsTree');
             if (jsonString)
@@ -186,9 +239,14 @@ var JsTree;
             return '<div id="tree-container"></div>' + '<button type="button" class="btn btn-primary btn-lg btn-block" id="save-to-local-storage">Save to local storage</button>' + '<button type="button" class="btn btn-primary btn-lg btn-block" id="restore-from-local-storage">Restore from local storage</button>';
         };
 
+        MainView.prototype.getRenderer = function () {
+            var treeContainer = this.container.find('#tree-container').html('');
+            return this.iterativeRenderer ? new IterativeTreeRenderer(treeContainer) : new RecursiveTreeRenderer(treeContainer);
+        };
+
         MainView.prototype.renderTree = function () {
             this.restoreFromLocalStorage();
-            new RecursiveTreeRenderer(this.container.find('#tree-container').html('')).renderTree(this.rootNode);
+            this.getRenderer().renderTree(this.rootNode);
         };
         return MainView;
     })();

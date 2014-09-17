@@ -141,6 +141,16 @@ var JsTree;
         });
     });
 
+    describe('Iterative tree renderer', function () {
+        it('renders tree nodes using own stack', function () {
+            var mainContainer = $('<div id="main-container"></div>');
+            var renderer = new JsTree.IterativeTreeRenderer(mainContainer);
+
+            renderer.renderTree(tree);
+            assertTree(mainContainer);
+        });
+    });
+
     describe('Main view', function () {
         var mainContainer;
         beforeEach(function () {

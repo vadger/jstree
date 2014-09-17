@@ -66,7 +66,7 @@ var JsTree;
 
             treeNodeView.toggleChildren(false);
             expect(childrenContainer.hasClass('hidden')).toBe(true);
-            expect(toggleChildrenControl.hasClass('glyphicon-plus')).toBe(false);
+            expect(toggleChildrenControl.hasClass('glyphicon-plus')).toBe(true);
         });
 
         it(' without any child does not show children toggle options', function () {
@@ -96,12 +96,13 @@ var JsTree;
         it(' allows editing node name', function () {
             expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(false);
 
-            treeNodeView.editName();
+            parentViewContainer.find('> li > .edit-name').click();
+
             expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(true);
             expect(parentViewContainer.find(' > li > .name-input').val()).toBe('nodeName');
             parentViewContainer.find(' > li > .name-input').val('new name');
 
-            treeNodeView.saveName();
+            parentViewContainer.find('> li > .save-name').click();
 
             expect(parentViewContainer.find(' > li').hasClass('edit-mode')).toBe(false);
             expect(parentViewContainer.find('.list-group-item .name').text()).toBe('new name');
